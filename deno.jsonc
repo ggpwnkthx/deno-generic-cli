@@ -1,0 +1,35 @@
+{
+  // deno.jsonc
+  "name": "@ggpwnkthx/generic-cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./mod.ts",
+
+  // code‐style --------------------------------------------------------------
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "always"
+  },
+
+  // import map ---------------------------------------------------------------
+  "imports": {
+    "@ggpwnkthx/generic-cli": "./mod.ts",
+    "@opentelemetry/api": "npm:@opentelemetry/api@1.9.0",
+    "@std/cli": "jsr:@std/cli@1.0.19",
+    "@std/fs": "jsr:@std/fs@1.0.18",
+    "@std/jsonc": "jsr:@std/jsonc@1.0.2",
+    "@std/fmt": "jsr:@std/fmt@1.0.8",
+    "@std/yaml": "jsr:@std/yaml@1.0.7",
+    "zod": "npm:zod@3.25.51"
+  },
+
+  // tasks/demo (for docs generation & tests) --------------------------------
+  "tasks": {
+    "docs": "deno run -A scripts/generate_docs.ts",
+    "test": "deno test --allow-read --allow-run"
+  }
+}

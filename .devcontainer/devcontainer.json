@@ -1,0 +1,16 @@
+{
+  "name": "deno-generic-cli",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "justjavac.vscode-deno-extensionpack",
+        "vscode-icons-team.vscode-icons",
+        "AndyGeek.context-code",
+        "yoavbls.pretty-ts-errors"
+      ]
+    }
+  }
+}
