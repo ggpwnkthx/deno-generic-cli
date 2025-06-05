@@ -1,4 +1,5 @@
-// In src/cli/registry.ts
+// src/cli/registry.ts
+
 /**
  * src/cli/registry.ts
  *
@@ -8,6 +9,10 @@
 
 import type { CommandHandler, CommandNode, CommandOptions } from "../types.ts";
 
+/**
+ * Manages the command tree, supports registering commands (and aliases),
+ * lazy-loading commands, and traversing the tree based on path segments.
+ */
 export class CommandRegistry {
   /** Root of the command tree. */
   public root: CommandNode = { children: new Map(), options: {} };
@@ -15,9 +20,12 @@ export class CommandRegistry {
   /**
    * Register a new (non-lazy) command with typed flags.
    *
-   * @param path array of segments, e.g. ["cluster", "node", "add"]
-   * @param handler function to run (will receive parsed flags)
-   * @param options metadata (description, examples, aliases, hidden, flagsSchema)
+   * @typeParam Path - Array of command segments (e.g., ["cluster", "node", "add"]).
+   * @typeParam Flags - Type of flags for this command.
+   * @param path - Array of segments defining the command path.
+   * @param handler - Function to run when the command is invoked.
+   * @param options - Metadata including description, examples, aliases, hidden, flagsSchema.
+   * @throws Error if `path` is empty or the command is already registered.
    */
   registerCommand<
     Path extends readonly string[],
@@ -61,10 +69,12 @@ export class CommandRegistry {
 
   /**
    * Register a lazy-loaded command. The actual module is imported only when invoked.
-   * @param path the command segments (e.g., ["user", "add"])
-   * @param modPath file path (or URL) to import from
-   * @param symbol the exported handler name (defaults to "default")
-   * @param options metadata (description, examples, aliases, hidden, flagsSchema)
+   *
+   * @param path - Array of segments defining the command path.
+   * @param modPath - File path or URL to import the module from.
+   * @param symbol - Exported handler symbol name in the module (defaults to "default").
+   * @param options - Metadata including description, examples, aliases, hidden, flagsSchema.
+   * @throws Error if `path` is empty or the command is already registered.
    */
   registerLazyCommand(
     path: string[],
@@ -112,7 +122,11 @@ export class CommandRegistry {
    *
    * Example:
    *   path = ["cluster", "node", "add", "foo"]
-   *   └── might consume 3 segments, returning node for "add".
+   *   returns node for "add" and consumed = 3
+   *
+   * @param path - Array of path segments (strings).
+   * @returns An object `{ node, consumed }` where `node` is the deepest matching CommandNode (or null),
+   *          and `consumed` is the number of segments matched.
    */
   traverse(path: string[]): { node: CommandNode | null; consumed: number } {
     let node: CommandNode | null = this.root;

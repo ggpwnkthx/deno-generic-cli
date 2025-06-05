@@ -11,6 +11,10 @@ import { levenshtein } from "./levenshtein.ts";
 /**
  * Given a command tree and a list of user-typed segments, return the best full
  * command path suggestion (e.g. "cluster node list") or null if no good match.
+ *
+ * @param root - The root CommandNode of the command tree.
+ * @param targetParts - Array of segments the user typed (e.g. ["clustr", "nede"]).
+ * @returns The suggested full command path string if similarity < 0.3, otherwise null.
  */
 export function suggestFullPath(
   root: CommandNode,

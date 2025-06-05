@@ -8,7 +8,11 @@
 import type { ZodType } from "zod";
 import type { CLIContext } from "./context.ts";
 
-/** Raw flags/options before validation. */
+/**
+ * Raw flags/options before validation.
+ * Captures any arbitrary key/value pairs from parsed CLI flags,
+ * including an array for `--`.
+ */
 export interface RawOptions extends Record<string, unknown> {
   /** Captures arguments after `--` */
   "--"?: string[];
@@ -29,9 +33,11 @@ export type OutputMode = "text" | "json" | "yaml";
 /**
  * A handler for an individual command, with typed flags.
  *
+ * @typeParam Flags - The shape of the flags for this command.
  * @param args - Positional arguments passed to the command.
  * @param flags - Typed, validated flags object.
  * @param ctx - CLIContext instance for logging, tracing, etc.
+ * @returns void or a Promise<void>.
  */
 export type CommandHandler<
   Flags extends Record<string, unknown> = Record<string, unknown>,
@@ -52,7 +58,7 @@ export interface LazyImport {
 /**
  * Command registration options.
  *
- * @template Flags - The shape of the expected flags for this command.
+ * @typeParam Flags - The shape of the expected flags for this command.
  */
 export interface CommandOptions<
   Flags extends Record<string, unknown> = Record<string, unknown>,
@@ -77,7 +83,7 @@ export interface CommandOptions<
 /**
  * Internal tree‐node representing a command, with metadata.
  *
- * @template Flags - The shape of the flags this node’s handler expects.
+ * @typeParam Flags - The shape of the flags this node’s handler expects.
  */
 export interface CommandNode<
   Flags extends Record<string, unknown> = Record<string, unknown>,
@@ -112,8 +118,15 @@ export type Middleware = (ctx: CLIContext) => Promise<void> | void;
  * failure, with a specific exitCode (defaults to 1).
  */
 export class CLIError extends Error {
+  /** Exit code to return to the shell. */
   readonly exitCode: number;
 
+  /**
+   * Create a new CLIError.
+   *
+   * @param msg - Error message to display.
+   * @param exitCode - Exit code (default: 1).
+   */
   constructor(msg: string, exitCode = 1) {
     super(msg);
     this.name = "CLIError";

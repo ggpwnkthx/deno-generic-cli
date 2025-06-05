@@ -8,7 +8,11 @@ type Verbosity = "quiet" | "normal" | "verbose";
 
 /**
  * Print help text (multi-column) according to verbosity.
- * If verbosity is "quiet", do nothing.
+ * If verbosity is "quiet", this function does nothing.
+ *
+ * @param cliName - The name of the CLI, used in the usage line.
+ * @param root - The root CommandNode of the command tree.
+ * @param verbosity - The verbosity level ("quiet", "normal", or "verbose").
  */
 export function printHelp(
   cliName: string,
@@ -23,7 +27,12 @@ export function printHelp(
 }
 
 /**
- * Called when an unknown command is invoked: prints an error + suggestion + full help.
+ * Called when an unknown command is invoked: prints an error, possibly a suggestion,
+ * and then the full help.
+ *
+ * @param cmd - The unknown command string that was invoked.
+ * @param root - The root CommandNode of the command tree.
+ * @param verbosity - The current verbosity level ("quiet", "normal", or "verbose").
  */
 export function unknownCommand(
   cmd: string,

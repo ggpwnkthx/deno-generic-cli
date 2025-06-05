@@ -15,6 +15,10 @@ import { parse as parseYAML } from "@std/yaml";
  *
  * If `explicitPath` is provided it's tried first (and *only* if supplied).
  * Returns an empty object on any error.
+ *
+ * @param name - The base name of the application (e.g., "my-cli").
+ * @param explicitPath - An explicit path to a YAML config file.
+ * @returns A Record<string, unknown> representing parsed config, or {} on error.
  */
 export async function loadConfigFile(
   name: string,

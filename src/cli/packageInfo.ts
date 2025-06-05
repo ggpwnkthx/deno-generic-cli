@@ -5,7 +5,7 @@
  * if the user didn't pass them explicitly into the CLI constructor.
  */
 
-import { exists } from "@std/fs";
+import { existsSync } from "@std/fs";
 import { parse as parseJsonc } from "@std/jsonc";
 
 interface PackageData {
@@ -18,14 +18,14 @@ interface PackageData {
  * ("generic-cli" / "0.0.0"), look for deno.json or deno.jsonc at project root,
  * parse it, and return any overridden values. If none found or parse fails, return {}.
  *
- * @param currentName    the existing `this.name` in the CLI instance
- * @param currentVersion the existing `this.version` in the CLI instance
- * @returns an object with possibly updated `{ name, version }`
+ * @param currentName - The existing `this.name` in the CLI instance.
+ * @param currentVersion - The existing `this.version` in the CLI instance.
+ * @returns An object containing possibly updated `{ name, version }` values.
  */
-export async function loadPackageInfo(
+export function loadPackageInfo(
   currentName: string,
   currentVersion: string,
-): Promise<PackageData> {
+): PackageData {
   // If neither is default, do nothing.
   if (currentName !== "generic-cli" && currentVersion !== "0.0.0") {
     return {};
@@ -34,8 +34,12 @@ export async function loadPackageInfo(
   const candidates = ["./deno.json", "./deno.jsonc"];
   for (const file of candidates) {
     try {
-      if (await exists(file)) {
-        const raw = await Deno.readTextFile(file);
+      if (
+        Deno.permissions.querySync({ name: "read", path: file }).state ===
+          "granted" &&
+        existsSync(file)
+      ) {
+        const raw = Deno.readTextFileSync(file);
         const data = file.endsWith(".jsonc")
           ? parseJsonc(raw)
           : JSON.parse(raw);

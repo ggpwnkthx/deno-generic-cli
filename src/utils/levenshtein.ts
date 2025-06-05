@@ -1,13 +1,17 @@
 /**
  * src/utils/levenshtein.ts
  *
- * Fast, memory-efficient Levenshtein distance implementation.  Used for fuzzy
+ * Fast, memory-efficient Levenshtein distance implementation. Used for fuzzy
  * command suggestions.
  */
 
 /**
  * Returns the Levenshtein distance between two strings.
  * Uses O(min(a, b)) memory by keeping only previous & current rows.
+ *
+ * @param a - First string to compare.
+ * @param b - Second string to compare.
+ * @returns The number of single-character edits required to change `a` into `b`.
  */
 export function levenshtein(a: string, b: string): number {
   if (a === b) return 0;

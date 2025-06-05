@@ -16,26 +16,43 @@ import { printHelp, unknownCommand } from "./helpers.ts";
 
 type Middleware = (ctx: CLIContext) => Promise<void> | void;
 
+/**
+ * Class representing a command-line interface with support for registering
+ * commands (including lazy-loaded commands), middleware hooks, automatic help,
+ * and flag parsing.
+ */
 export class CLI {
   #registry = new CommandRegistry();
-  #name: string;
-  #version: string;
+  #name: string = "";
+  #version: string = "";
   #beforeMiddleware: Middleware[] = [];
   #afterMiddleware: Middleware[] = [];
   #config: CLIConfig = {};
 
+  /**
+   * Construct a new CLI instance.
+   * If `name` and `version` are not provided, defaults are used and an attempt
+   * is made to auto-load name/version from `deno.json` or `deno.jsonc`.
+   *
+   * @param info - An object containing optional `name` and `version` fields.
+   */
   constructor(info: { name?: string; version?: string } = {}) {
-    this.#name = info.name ?? "generic-cli";
-    this.#version = info.version ?? "0.0.0";
-
-    // Fire-and-forget: attempt to auto-load name/version from deno.json / deno.jsonc
-    this.#initializePackageInfo().catch(() => {});
+    // Attempt to auto-load name/version from deno.json / deno.jsonc
+    this.#initializePackageInfo();
+    // Overrides
+    if (info.name) this.#name = info.name;
+    if (info.version) this.#version = info.version;
   }
 
   // -------------------- Public API --------------------
 
   /**
    * Register a new (non-lazy) command.
+   *
+   * @typeParam Path - An array of string segments representing the command path.
+   * @param path - Array of segments, e.g. ["cluster", "node", "add"].
+   * @param handler - Function to run when the command is invoked.
+   * @param options - Optional metadata including description, examples, aliases, hidden, flagsSchema.
    */
   registerCommand<Path extends readonly string[]>(
     path: Path,
@@ -47,6 +64,11 @@ export class CLI {
 
   /**
    * Register a lazy-loaded command (module imported only when invoked).
+   *
+   * @param path - Array of segments representing the command path.
+   * @param modPath - File path (or URL) to import from when invoked.
+   * @param symbol - The exported symbol name in the module (defaults to "default").
+   * @param options - Optional metadata including description, examples, aliases, hidden, flagsSchema.
    */
   registerLazyCommand(
     path: string[],
@@ -59,6 +81,8 @@ export class CLI {
 
   /**
    * Add a before-each hook (runs before every command).
+   *
+   * @param fn - Middleware function to execute before each command.
    */
   beforeEach(fn: Middleware): void {
     this.#beforeMiddleware.push(fn);
@@ -66,13 +90,17 @@ export class CLI {
 
   /**
    * Add an after-each hook (runs after every command).
+   *
+   * @param fn - Middleware function to execute after each command.
    */
   afterEach(fn: Middleware): void {
     this.#afterMiddleware.push(fn);
   }
 
   /**
-   * Execute the CLI with raw argv (e.g. `Deno.args`).
+   * Execute the CLI with raw argv (e.g., `Deno.args`).
+   *
+   * @param argv - Array of raw argument strings.
    */
   async run(argv: string[]): Promise<void> {
     // 1. Parse global flags
@@ -229,8 +257,8 @@ export class CLI {
    * Fire-and-forget: attempt to auto-load name/version from deno.json / deno.jsonc
    * if the user didn't explicitly pass them into `new CLI({ name, version })`.
    */
-  async #initializePackageInfo(): Promise<void> {
-    const loaded = await loadPackageInfo(this.#name, this.#version);
+  #initializePackageInfo(): void {
+    const loaded = loadPackageInfo(this.#name, this.#version);
     if (loaded.name) {
       this.#name = loaded.name;
     }

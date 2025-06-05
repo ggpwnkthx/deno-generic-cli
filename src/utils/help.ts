@@ -13,6 +13,15 @@ interface Row {
   group: string; // first segment
 }
 
+/**
+ * Format multi-column help lines for a CLI.
+ *
+ * Groups commands by their first segment, and outputs usage, commands, and options.
+ *
+ * @param cliName - The name of the CLI, used in the usage line.
+ * @param root - The root CommandNode of the command tree.
+ * @returns An array of formatted help lines (strings).
+ */
 export function formatHelpLines(
   cliName: string,
   root: CommandNode,
