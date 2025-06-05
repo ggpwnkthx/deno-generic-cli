@@ -22,11 +22,12 @@ function parseEnvValue(v: string): unknown {
 export function loadEnvOverrides(prefix: string): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const up = prefix.replace(/-/g, "_").toUpperCase();
-
-  for (const [k, v] of Object.entries(Deno.env.toObject())) {
-    if (k.startsWith(`${up}_`)) {
-      const key = k.slice(up.length + 1).toLowerCase();
-      out[key] = parseEnvValue(v);
+  if (Deno.permissions.querySync({ name: "env" }).state === "granted") {
+    for (const [k, v] of Object.entries(Deno.env.toObject())) {
+      if (k.startsWith(`${up}_`)) {
+        const key = k.slice(up.length + 1).toLowerCase();
+        out[key] = parseEnvValue(v);
+      }
     }
   }
   return out;

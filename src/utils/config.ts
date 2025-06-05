@@ -20,9 +20,17 @@ export async function loadConfigFile(
   name: string,
   explicitPath?: string,
 ): Promise<Record<string, unknown>> {
-  const home = Deno.env.get("HOME") ?? "";
-  const xdg = Deno.env.get("XDG_CONFIG_HOME") ??
-    (home ? `${home}/.config` : "");
+  const home =
+    (await Deno.permissions.query({ name: "env", variable: "HOME" })).state ===
+        "granted"
+      ? Deno.env.get("HOME")
+      : "";
+  const xdg =
+    (await Deno.permissions.query({ name: "env", variable: "XDG_CONFIG_HOME" }))
+        .state ===
+        "granted"
+      ? Deno.env.get("XDG_CONFIG_HOME")
+      : (home ? `${home}/.config` : "");
 
   const candidates: string[] = [];
   if (explicitPath) {
@@ -44,7 +52,11 @@ export async function loadConfigFile(
 
   for (const file of candidates) {
     try {
-      if (await exists(file)) {
+      if (
+        Deno.permissions.querySync({ name: "read", path: file })
+            .state ===
+          "granted" && await exists(file)
+      ) {
         const raw = await Deno.readTextFile(file);
         const parsed = parseYAML(raw);
         if (typeof parsed === "object" && parsed !== null) {
