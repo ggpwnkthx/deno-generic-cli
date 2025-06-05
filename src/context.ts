@@ -161,20 +161,39 @@ export class CLIContext {
     }
   }
 
-  warn(msg: string): void {
+  warn(msg: string | Record<string, unknown>): void {
     if (this.#verbosity === "quiet") return;
-    console.warn(yellow(msg));
-  }
-
-  debug(msg: string): void {
-    if (this.#verbosity === "verbose") {
-      console.debug(blue(msg));
+    if (this.#outputMode === "json") {
+      console.log(JSON.stringify(msg));
+    } else if (this.#outputMode === "yaml") {
+      console.log(stringifyYAML(msg));
+    } else {
+      console.log(yellow(String(msg)));
     }
   }
 
-  error(msg: string): void {
+  debug(msg: string | Record<string, unknown>): void {
+    if (this.#verbosity === "quiet") return;
+    if (this.#verbosity === "verbose") {
+      if (this.#outputMode === "json") {
+        console.log(JSON.stringify(msg));
+      } else if (this.#outputMode === "yaml") {
+        console.log(stringifyYAML(msg));
+      } else {
+        console.log(blue(String(msg)));
+      }
+    }
+  }
+
+  error(msg: string | Record<string, unknown>): void {
     // Always show errors, even in quiet mode
-    console.error(red(msg));
+    if (this.#outputMode === "json") {
+      console.log(JSON.stringify(msg));
+    } else if (this.#outputMode === "yaml") {
+      console.log(stringifyYAML(msg));
+    } else {
+      console.log(red(String(msg)));
+    }
   }
 
   // -------------------- Exit helpers --------------------
