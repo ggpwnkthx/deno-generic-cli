@@ -7,7 +7,7 @@
  */
 
 import { blue, green, red, yellow } from "@std/fmt/colors";
-import { type Span, SpanStatusCode } from "@opentelemetry/api";
+import { type Span, SpanStatusCode, type Tracer } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
 import type { Options, OutputMode, Verbosity } from "./types.ts";
 import { CLIError } from "./types.ts";
@@ -49,7 +49,7 @@ class Spinner {
 }
 
 export class CLIContext {
-  readonly tracer = trace.getTracer("generic-cli");
+  readonly tracer: Tracer = trace.getTracer("generic-cli");
   #span: Span | null = null;
   #verbosity: Verbosity;
   #outputMode: OutputMode;
